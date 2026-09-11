@@ -1,16 +1,10 @@
-import './App.css'
 
+import "./App.css";
+import { Routing } from "./Routing";
 function App() {
   return (
-    <div>
-      <h2>
-        Dashboard
-      </h2>
-      <p>
-        Welcome to Statement generation. Use the navigation above to manage companies, templates, and more.
-      </p>
-    </div>
-  )
+   <Routing />
+  );
 }
 
-export default App
+export default App;
