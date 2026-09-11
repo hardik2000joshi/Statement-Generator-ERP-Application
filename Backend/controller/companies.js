@@ -89,4 +89,70 @@ async function getAllCompanies(req, res) {
   }
 }
 
-module.exports = {createCompany, getCompany, getAllCompanies}
+async function updateCompany(req, res) {
+  try {
+    const { id } = req.params;
+
+    const company = await companyModel.findByIdAndUpdate(
+      id,
+      {
+        $set: req.body,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Company updated successfully",
+      company,
+    });
+
+  } catch (error) {
+    console.error("Update Company Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update company",
+      error: error.message,
+    });
+  }
+}
+
+// DELETE COMPANY
+async function deleteCompany(req, res) {
+  try {
+    const { id } = req.params;
+    const company = await companyModel.findByIdAndDelete(id);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Company deleted successfully",
+    });
+
+  } catch (error) {
+    console.error("Delete Company Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete company",
+      error: error.message,
+    });
+  }
+}
+
+module.exports = {createCompany, getCompany, getAllCompanies, updateCompany, deleteCompany}
