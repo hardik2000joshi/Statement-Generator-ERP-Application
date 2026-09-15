@@ -48,6 +48,7 @@ const companySchema = new mongoose.Schema({
     industryType: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Industry",
+        required: true    
     }],
     logo: {
         type: String,

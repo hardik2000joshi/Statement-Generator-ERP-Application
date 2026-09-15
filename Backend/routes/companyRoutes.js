@@ -6,6 +6,6 @@ const router = express.Router();
 router.post("/", createCompany);
 router.get("/:id", getCompany);
 router.get("/", getAllCompanies);
-router.patch("/:id", updateCompany);
+router.put("/:id", updateCompany);
 router.delete("/:id", deleteCompany);
 module.exports = router;
