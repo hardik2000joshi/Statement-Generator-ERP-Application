@@ -12,11 +12,15 @@ const companyRouter = require("./routes/companyRoutes");
 const industryRouter = require("./routes/industryRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
 const vendorRouter = require("./routes/vendorRoutes");
+const generateRouter  = require("./routes/generatorRoutes");
+const invoiceRouter = require("./routes/invoiceRoutes");
 
 app.use("/api/companies", companyRouter);
 app.use("/api/industries", industryRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/vendors", vendorRouter);
+app.use("/api/generator", generateRouter);
+app.use("/api/invoice", invoiceRouter);
 app.get("/", (req, res) => {
     return res.send("Welcome to Statement Generator Application Backend");
 })

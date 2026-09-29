@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-export const transactionSchema = new mongoose.Schema({
+const mongoose = require("mongoose");
+const transactionSchema = new mongoose.Schema({
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
@@ -42,5 +42,5 @@ export const transactionSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-const transactionModel = mongoose.model("Transaction", tansactionSchema);
+const transactionModel = mongoose.model("Transaction", transactionSchema);
 module.exports = transactionModel;
