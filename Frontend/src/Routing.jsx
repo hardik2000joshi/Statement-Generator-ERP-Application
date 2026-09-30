@@ -9,6 +9,7 @@ import {Invoices} from "./components/Invoices";
 import { Templates } from "./components/Templates";
 import { Settings } from "./components/Settings";
 import {Layout} from "./layout";
+import { BankStatement } from "./components/BankStatement";
 export const Routing = () => {
     return(
         <BrowserRouter>
@@ -30,6 +31,10 @@ export const Routing = () => {
             <Route 
             path="/generator"
             element={<Generator />}
+            />
+            <Route
+            path="/generator/:statementId"
+            element={<BankStatement />}
             />
             <Route 
             path = "/vendor-categories"

@@ -170,4 +170,26 @@ const getBankStatement = async (req, res) => {
   }
 };
 
-module.exports = {generateBankStatement, getBankStatement}
+const getAllBankStatement = async (req, res) => {
+  try {
+    const statements = await bankStatementModel.find({})
+    .populate("company")
+    .sort({createdAt: -1});
+
+    return res.status(200).json({
+      success: true,
+      message: "Bank Statements fetched successfully",
+      data: statements,
+    });
+  }
+  catch(error){
+    console.error("Fetch Bank Statements error: ", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch bank statements",
+      error: error.message,
+    });
+    }
+};
+
+module.exports = {generateBankStatement, getBankStatement, getAllBankStatement}

@@ -156,6 +156,89 @@ if(!bankStatement){
     }
 }
 
+const fetchAllInvoices = async(req, res) => {
+  try {
+    const invoices = await invoiceModel.find()
+    .populate("company")
+    .populate("bankStatement")
+    .populate({
+      path: "transactions",
+      populate: [
+        {
+          path: "vendor",
+          select: "name",
+        },
+        {
+          path: "category",
+          select: "name",
+        },
+      ],
+    })
+    .sort({createdAt: -1});
+    return res.status(200).json({
+      success: true,
+      message: "Invoices fetched Successfully",
+      count: invoices.length,
+      invoices,
+    });
+  }
+  catch(error){
+    console.error("Fetch all invoices error: ", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch invoices",
+      error: error.message,
+    });
+  }
+};
 
+const fetchInvoicesById = async(req, res) => {
+  try {
+    const {id} = req.params;
+    // validate invoice ID
+    if(!mongoose.Types.ObjectId.isValid(id)){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid invoice ID",
+      });
+    }
+    const invoice = await invoiceModel.findById(id)
+    .populate("company")
+    .populate("bankStatement")
+    .populate({
+      path: "transactions",
+      populate: [
+        {
+          path: "vendor",
+          select: "name",
+        },
+        {
+          path: "category",
+          select: "name",
+        },
+      ],
+    });
 
-module.exports = {createInvoice}
+    if(!invoice){
+      return res.status(404).json({
+        success: false,
+        message: "Invoice not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Invoice fetched successfully",
+      invoice,
+    });
+  }
+  catch(error){
+    console.error("Fetch Invoice Error: ", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch invoice",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = {createInvoice, fetchAllInvoices, fetchInvoicesById}
