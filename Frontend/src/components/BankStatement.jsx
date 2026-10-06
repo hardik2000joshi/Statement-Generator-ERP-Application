@@ -1,12 +1,135 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const BankStatement = () => {
-  const { statementId } = useParams();
+  const navigate = useNavigate();
+    const { statementId } = useParams();
   const [statement, setStatement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedTransactions, setSelectedTransactions] = useState([]);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
+
+  const handleTransactionSelection = (transactionId) => {
+    setSelectedTransactions((previous) => {
+      if (previous.includes(transactionId)) {
+        return previous.filter((id) => id !== transactionId);
+      }
+      return [...previous, transactionId];
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (!statement?.transactions?.length) {
+      return;
+    }
+
+    if (
+      selectedTransactions.length ===
+      statement.transactions.length
+    ) {
+      setSelectedTransactions([]);
+    } else {
+      setSelectedTransactions(
+        statement.transactions.map(
+          (transaction) => transaction._id
+        )
+      );
+    }
+  };
+
+   // Generate invoice from selected transactions
+  const handleGenerateInvoice = async () => {
+    setError("");
+
+    if (selectedTransactions.length === 0) {
+      setError("Please select at least one transaction.");
+      return;
+    }
+
+    setInvoiceLoading(true);
+
+    try {
+      const response = await fetch(
+        "http://localhost:3006/api/invoice",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            bankStatementId: statement._id,
+            transactionId: selectedTransactions,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Failed to generate invoice"
+        );
+      }
+
+      // Invoice successfully created
+      navigate(`/invoice/${data.invoice._id}`);
+    } catch (error) {
+      console.error(
+        "Generate Invoice Error:",
+        error
+      );
+
+      setError(
+        error.message || "Failed to generate invoice"
+      );
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  const handleGenerateFullInvoice = async () => {
+    setError("");
+    setInvoiceLoading(true);
+    try {
+      const response = await fetch(
+        "http://localhost:3006/api/invoice",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            bankStatementId: statement._id,
+            allTransactions: true,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Failed to generate invoice"
+        );
+      }
+      navigate(`/invoice/${data.invoice._id}`);
+    } catch (error) {
+      console.error(
+        "Generate Full Invoice Error:",
+        error
+      );
+      setError(
+        error.message ||
+          "Failed to generate invoice"
+      );
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchBankStatement = async () => {
       try {
@@ -96,63 +219,50 @@ export const BankStatement = () => {
               </p>
               <p className="mt-1 text-sm text-slate-900">
                 {company?.registrationNumber || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+              </p>
+            </div>
             <div>
-              {" "}
+              
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                GST Number{" "}
-              </p>{" "}
+                
+                GST Number
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
-                {company?.gstNumber || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                {company?.gstNumber || "N/A"}
+              </p>
+            </div>
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                PAN Number{" "}
-              </p>{" "}
+                PAN Number
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
-                {company?.panNumber || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                {company?.panNumber || "N/A"}
+              </p>
+            </div>
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Email{" "}
-              </p>{" "}
+                Email
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
-                {company?.email || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                {company?.email || "N/A"}
+              </p>
+            </div>
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Phone{" "}
-              </p>{" "}
+                Phone
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
-                {company?.phone || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                {company?.phone || "N/A"}
+              </p>
+            </div>
             <div className="md:col-span-2">
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Address{" "}
-              </p>{" "}
+                Address
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
-                {company?.address || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                {company?.address || "N/A"}
+              </p>
+            </div>
             <div>
               {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
@@ -178,45 +288,35 @@ export const BankStatement = () => {
             <div>
               {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Country{" "}
-              </p>{" "}
+                Country
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
-                {company?.country || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-        {/* Bank Information */}{" "}
+                {company?.country || "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bank Information */}
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          {" "}
           <h2 className="mb-5 text-lg font-bold text-slate-900">
-            {" "}
-            Bank Information{" "}
-          </h2>{" "}
+            Bank Information
+          </h2>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            {" "}
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Bank Name{" "}
-              </p>{" "}
+                Bank Name
+              </p>
               <p className="mt-1 text-sm font-semibold text-slate-900">
-                {" "}
-                {company?.bankDetails?.bankName || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                {company?.bankDetails?.bankName || "N/A"}
+              </p>
+            </div>
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Account Number{" "}
-              </p>{" "}
+                Account Number
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
-                {statement.accountNumber || "N/A"}{" "}
+                {statement.accountNumber || "N/A"}
               </p>{" "}
             </div>{" "}
             <div>
@@ -228,10 +328,10 @@ export const BankStatement = () => {
               <p className="mt-1 text-sm text-slate-900">
                 {" "}
                 {company?.bankDetails?.ifscCode || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
+              </p>
+            </div>
+          </div>
+        </div>
         {/* Statement Summary */}{" "}
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           {" "}
@@ -249,49 +349,44 @@ export const BankStatement = () => {
               </p>{" "}
               <p className="mt-1 text-sm font-semibold capitalize text-slate-900">
                 {" "}
-                {statement.statementType || "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                {statement.statementType || "N/A"}
+              </p>
+            </div>
+
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Period Start{" "}
-              </p>{" "}
+                Period Start
+              </p>
+
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
                 {statement.periodStart
                   ? new Date(statement.periodStart).toLocaleDateString()
-                  : "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                  : "N/A"}
+              </p>
+            </div>
+
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Period End{" "}
-              </p>{" "}
+                Period End
+              </p>
               <p className="mt-1 text-sm text-slate-900">
-                {" "}
                 {statement.periodEnd
                   ? new Date(statement.periodEnd).toLocaleDateString()
-                  : "N/A"}{" "}
-              </p>{" "}
-            </div>{" "}
+                  : "N/A"}
+              </p>
+            </div>
+
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Opening Balance{" "}
-              </p>{" "}
+                Opening Balance
+              </p>
               <p className="mt-1 text-sm font-semibold text-slate-900">
-                {" "}
                 ₹
                 {Number(statement.openingBalance || 0).toLocaleString(
                   "en-IN",
-                )}{" "}
-              </p>{" "}
-            </div>{" "}
+                )}
+              </p>
+            </div>
             <div>
               {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
@@ -303,84 +398,128 @@ export const BankStatement = () => {
                 ₹
                 {Number(statement.closingBalance || 0).toLocaleString(
                   "en-IN",
-                )}{" "}
-              </p>{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-        {/* Transactions */}{" "}
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          {" "}
-          <div className="flex items-center justify-between border-b border-slate-200 p-6">
-            {" "}
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Invoice Actions */}
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
             <div>
-              {" "}
-              <h2 className="text-lg font-bold text-slate-900">
-                {" "}
-                Transactions{" "}
-              </h2>{" "}
+              <p className="font-semibold text-slate-900">
+                Invoice Generation
+              </p>
+
               <p className="mt-1 text-sm text-slate-500">
-                {" "}
-                {transactions.length} transaction{" "}
-                {transactions.length !== 1 ? "s" : ""}{" "}
-              </p>{" "}
-            </div>{" "}
-          </div>{" "}
+                {selectedTransactions.length} transaction
+                {selectedTransactions.length !== 1
+                  ? "s"
+                  : ""}{" "}
+                selected
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+
+              <button
+                type="button"
+                onClick={handleGenerateInvoice}
+                disabled={
+                  invoiceLoading ||
+                  selectedTransactions.length === 0
+                }
+                className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {invoiceLoading
+                  ? "Generating..."
+                  : "Generate Invoice from Selected"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGenerateFullInvoice}
+                disabled={
+                  invoiceLoading ||
+                  !statement?.transactions?.length
+                }
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Generate Invoice for All
+              </button>
+            </div>
+          </div>
+          </div>
+
+        {/* Transactions */}
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-200 p-6">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Transactions
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Select transactions to include in an invoice.
+              </p>
+            </div>
+          </div>
           <div className="overflow-x-auto">
-            {" "}
+            
             <table className="min-w-full">
-              {" "}
               <thead className="bg-slate-50">
-                {" "}
                 <tr>
-                  {" "}
+                  {/* Select All */}
+                  <th className="px-4 py-3">
+                  </th>
+
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    {" "}
-                    Date{" "}
-                  </th>{" "}
+                    Date
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    {" "}
-                    Description{" "}
-                  </th>{" "}
+                    Description
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    {" "}
-                    Type{" "}
+                    Type
                   </th>{" "}
                   <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
                     {" "}
-                    Amount{" "}
-                  </th>{" "}
+                    Amount
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    {" "}
-                    Balance{" "}
-                  </th>{" "}
-                </tr>{" "}
-              </thead>{" "}
+                    
+                    Balance
+                  </th>
+                </tr>
+              </thead>
               <tbody className="divide-y divide-slate-100">
-                {" "}
                 {transactions.length > 0 ? (
                   transactions.map((transaction) => (
                     <tr key={transaction._id} className="hover:bg-slate-50">
-                      {" "}
+                      <td className="px-4 py-4">
+                        <input 
+                        type="checkbox"
+                        checked={selectedTransactions.includes(transaction._id)}
+                        onChange={() => handleTransactionSelection(transaction._id)} 
+                        />
+                      </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
-                        {" "}
                         {transaction.date
                           ? new Date(transaction.date).toLocaleDateString()
-                          : "N/A"}{" "}
-                      </td>{" "}
+                          : "N/A"}
+                      </td>
                       <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                        {" "}
                         {transaction.description || "N/A"}{" "}
-                      </td>{" "}
+                      </td>
                       <td className="px-6 py-4">
-                        {" "}
                         <span
                           className={`rounded-full px-2.5 py-1 text-xs font-semibold ${transaction.type === "credit" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
                         >
-                          {" "}
-                          {transaction.type || "N/A"}{" "}
-                        </span>{" "}
-                      </td>{" "}
+                          {transaction.type || "N/A"}
+                        </span>
+                      </td>
                       <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-slate-900">
                         ₹
                         {Number(transaction.amount || 0).toLocaleString(

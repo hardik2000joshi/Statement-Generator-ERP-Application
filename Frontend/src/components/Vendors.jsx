@@ -10,6 +10,7 @@ export const Vendors = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    description: "",
     category: "",
     outgoingMin: "",
     outgoingMax: "",
@@ -22,6 +23,7 @@ export const Vendors = () => {
   const resetForm = () => {
     setFormData({
       name: "",
+      description: "",
       category: "",
       outgoingMin: "",
       outgoingMax: "",
@@ -88,6 +90,7 @@ export const Vendors = () => {
       const method = editingId ? "PUT" : "POST";
       const body = {
         name: formData.name,
+        description: formData.description,
         category: formData.category,
         outgoingMin: Number(formData.outgoingMin),
         outgoingMax: Number(formData.outgoingMax),
@@ -125,6 +128,7 @@ export const Vendors = () => {
     setEditingId(vendor._id);
     setFormData({
       name: vendor.name,
+      description: vendor.description || "",
       category: vendor.category?._id || vendor.category || "",
       outgoingMin: vendor.outgoingMin,
       outgoingMax: vendor.outgoingMax,
@@ -251,6 +255,24 @@ export const Vendors = () => {
                   required
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
                 />
+              </div>
+
+              {/* TRANSACTION DESCRIPTION */}
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Transaction Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows="2"
+                  placeholder="e.g. Monthly IT support services"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-indigo-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  This text appears in the generated bank statement and invoice.
+                </p>
               </div>
 
               {/* CATEGORY */}
@@ -451,6 +473,11 @@ export const Vendors = () => {
                 <p className="mt-1 text-sm text-gray-500">
                   {getCategoryName(vendor)}
                 </p>
+                {vendor.description && (
+                  <p className="mt-2 text-sm text-gray-700">
+                    {vendor.description}
+                  </p>
+                )}
 
               </div>
 

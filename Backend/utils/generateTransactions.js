@@ -44,7 +44,7 @@ function generateTransactions({
             vendor: vendor._id,
             category: vendor.category,
             date: getRandomDate(startDate, endDate),
-            description: vendor.name,
+            description: vendor.description?.trim() || vendor.name,
             type,
             amount,
         });

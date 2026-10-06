@@ -6,6 +6,7 @@ async function createVendor(req, res) {
   try {
     const {
       name,
+      description,
       category,
       outgoingMin,   // minimum expense
       outgoingMax,    // maximum expense
@@ -63,6 +64,7 @@ async function createVendor(req, res) {
 
     const vendor = await vendorModel.create({
       name: name.trim(),
+      description: description?.trim() || "",
       category,
       outgoingMin,
       outgoingMax,
@@ -146,7 +148,7 @@ async function getVendorById(req, res) {
 async function updateVendor(req, res){
     try {
         const {id} = req.params;
-        const {name, category, outgoingMin, outgoingMax, incomingMin, incomingMax, weekendActivity} = req.body;
+        const {name, description, category, outgoingMin, outgoingMax, incomingMin, incomingMax, weekendActivity} = req.body;
         if(!name || !category || !outgoingMin === undefined || !outgoingMax === undefined || incomingMin === undefined || incomingMax === undefined || weekendActivity === undefined){
             return res.status(400).json({
                 success: false,
@@ -187,6 +189,7 @@ async function updateVendor(req, res){
             {
                 $set: {
                     name: name.trim(),
+                    description: description?.trim() || "",
                     category,
                     outgoingMin,
                     outgoingMax,

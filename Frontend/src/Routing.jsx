@@ -10,6 +10,7 @@ import { Templates } from "./components/Templates";
 import { Settings } from "./components/Settings";
 import {Layout} from "./layout";
 import { BankStatement } from "./components/BankStatement";
+import { InvoicePreview } from "./components/InvoicePreview";
 export const Routing = () => {
     return(
         <BrowserRouter>
@@ -47,6 +48,10 @@ export const Routing = () => {
             <Route
             path = "/invoice"
             element={<Invoices />}
+            />
+            <Route
+            path="/invoice/:invoiceId"
+            element={<InvoicePreview />}
             />
             <Route
             path="/template"

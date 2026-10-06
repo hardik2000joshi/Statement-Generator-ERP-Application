@@ -174,6 +174,18 @@ const getAllBankStatement = async (req, res) => {
   try {
     const statements = await bankStatementModel.find({})
     .populate("company")
+    .populate({
+      path: "transactions",
+      populate:[{
+        path: "vendor",
+        select: "name description",
+    },
+    {
+      path: "category",
+      select: "name",
+    },
+  ],
+    })
     .sort({createdAt: -1});
 
     return res.status(200).json({
