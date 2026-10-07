@@ -11,7 +11,7 @@ const templateSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["BASIC", "DETAILED", "MINIMAL"],
-      unique: true,
+      // unique: true,
     },
 
      subject: {
