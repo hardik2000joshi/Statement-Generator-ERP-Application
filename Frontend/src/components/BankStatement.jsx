@@ -1,15 +1,99 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { X } from "lucide-react";
 
 export const BankStatement = () => {
   const navigate = useNavigate();
-    const { statementId } = useParams();
+  const { statementId } = useParams();
   const [statement, setStatement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedTransactions, setSelectedTransactions] = useState([]);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [showEmailModel, setShowEmailModel] = useState(false);
+  const [emailForm, setEmailForm] = useState({
+    templateId: "",
+    recepientEmail: "",
+    cc: "",
+    bcc: "",
+  });
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+
+
+  // send email logic
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+    try {
+      setEmailSending(true);
+      setEmailError("");
+      setEmailMessage("");
+      if (!emailForm.templateId) {
+        setEmailError("Please select a template");
+        return;
+      }
+      if (!emailForm.recepientEmail) {
+        setEmailError("Recepient email is required");
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_LOCALHOST_URL}/api/email/send-statement`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            templateId: emailForm.templateId,
+            bankStatementId: statementId,
+            recepientEmail: emailForm.recepientEmail,
+            cc: emailForm.cc,
+            bcc: emailForm.bcc,
+          }),
+        },
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send email");
+      }
+      setEmailMessage("Bank Statement Email Sent successfully");
+      setEmailForm({
+        templateId: "",
+        recepientEmail: "",
+        cc: "",
+        bcc: "",
+      });
+    } catch (error) {
+      console.error("Send Email Error: ", error);
+      setEmailError(error.message);
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+  const [templates, setTemplates] = useState([]);
+  const fetchTemplates = async() => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/templates/`);
+      const data = await response.json();
+       if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch templates");
+    }
+     setTemplates(data.data || []);
+    }
+    catch(error){
+      console.error(error);
+    setEmailError(error.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
 
   const handleTransactionSelection = (transactionId) => {
     setSelectedTransactions((previous) => {
@@ -25,21 +109,16 @@ export const BankStatement = () => {
       return;
     }
 
-    if (
-      selectedTransactions.length ===
-      statement.transactions.length
-    ) {
+    if (selectedTransactions.length === statement.transactions.length) {
       setSelectedTransactions([]);
     } else {
       setSelectedTransactions(
-        statement.transactions.map(
-          (transaction) => transaction._id
-        )
+        statement.transactions.map((transaction) => transaction._id),
       );
     }
   };
 
-   // Generate invoice from selected transactions
+  // Generate invoice from selected transactions
   const handleGenerateInvoice = async () => {
     setError("");
 
@@ -51,39 +130,29 @@ export const BankStatement = () => {
     setInvoiceLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:3006/api/invoice",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            bankStatementId: statement._id,
-            transactionId: selectedTransactions,
-          }),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/invoice`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bankStatementId: statement._id,
+          transactionId: selectedTransactions,
+        }),
+      });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(
-          data.message || "Failed to generate invoice"
-        );
+        throw new Error(data.message || "Failed to generate invoice");
       }
 
       // Invoice successfully created
       navigate(`/invoice/${data.invoice._id}`);
     } catch (error) {
-      console.error(
-        "Generate Invoice Error:",
-        error
-      );
+      console.error("Generate Invoice Error:", error);
 
-      setError(
-        error.message || "Failed to generate invoice"
-      );
+      setError(error.message || "Failed to generate invoice");
     } finally {
       setInvoiceLoading(false);
     }
@@ -93,38 +162,26 @@ export const BankStatement = () => {
     setError("");
     setInvoiceLoading(true);
     try {
-      const response = await fetch(
-        "http://localhost:3006/api/invoice",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            bankStatementId: statement._id,
-            allTransactions: true,
-          }),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/invoice`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bankStatementId: statement._id,
+          allTransactions: true,
+        }),
+      });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(
-          data.message ||
-            "Failed to generate invoice"
-        );
+        throw new Error(data.message || "Failed to generate invoice");
       }
       navigate(`/invoice/${data.invoice._id}`);
     } catch (error) {
-      console.error(
-        "Generate Full Invoice Error:",
-        error
-      );
-      setError(
-        error.message ||
-          "Failed to generate invoice"
-      );
+      console.error("Generate Full Invoice Error:", error);
+      setError(error.message || "Failed to generate invoice");
     } finally {
       setInvoiceLoading(false);
     }
@@ -136,7 +193,7 @@ export const BankStatement = () => {
         setLoading(true);
         setError("");
         const response = await fetch(
-          `http://localhost:3006/api/generator/${statementId}`,
+          `${import.meta.env.VITE_LOCALHOST_URL}/api/generator/${statementId}`,
         );
         const data = await response.json();
         if (!response.ok || !data.success) {
@@ -222,9 +279,7 @@ export const BankStatement = () => {
               </p>
             </div>
             <div>
-              
               <p className="text-xs font-medium uppercase text-slate-500">
-                
                 GST Number
               </p>
               <p className="mt-1 text-sm text-slate-900">
@@ -332,23 +387,17 @@ export const BankStatement = () => {
             </div>
           </div>
         </div>
-        {/* Statement Summary */}{" "}
+        {/* Statement Summary */}
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          {" "}
           <h2 className="mb-5 text-lg font-bold text-slate-900">
-            {" "}
-            Statement Details{" "}
-          </h2>{" "}
+            Statement Details
+          </h2>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-5">
-            {" "}
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Statement Type{" "}
-              </p>{" "}
+                Statement Type
+              </p>
               <p className="mt-1 text-sm font-semibold capitalize text-slate-900">
-                {" "}
                 {statement.statementType || "N/A"}
               </p>
             </div>
@@ -381,57 +430,61 @@ export const BankStatement = () => {
                 Opening Balance
               </p>
               <p className="mt-1 text-sm font-semibold text-slate-900">
-                ₹
-                {Number(statement.openingBalance || 0).toLocaleString(
-                  "en-IN",
-                )}
+                {Number(statement.openingBalance || 0).toLocaleString("en-IN")}
               </p>
             </div>
             <div>
-              {" "}
               <p className="text-xs font-medium uppercase text-slate-500">
-                {" "}
-                Closing Balance{" "}
-              </p>{" "}
+                Closing Balance
+              </p>
               <p className="mt-1 text-sm font-semibold text-slate-900">
-                {" "}
-                ₹
-                {Number(statement.closingBalance || 0).toLocaleString(
-                  "en-IN",
-                )}
+                {Number(statement.closingBalance || 0).toLocaleString("en-IN")}
               </p>
             </div>
           </div>
         </div>
 
+        {/* send statement email */}
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Send Statement
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Send this bank statement to a recepient by email
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowEmailModel(true);
+                setEmailError("");
+                setEmailMessage("");
+              }}
+              className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Send Email
+            </button>
+          </div>
+        </div>
         {/* Invoice Actions */}
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
             <div>
-              <p className="font-semibold text-slate-900">
-                Invoice Generation
-              </p>
+              <p className="font-semibold text-slate-900">Invoice Generation</p>
 
               <p className="mt-1 text-sm text-slate-500">
                 {selectedTransactions.length} transaction
-                {selectedTransactions.length !== 1
-                  ? "s"
-                  : ""}{" "}
-                selected
+                {selectedTransactions.length !== 1 ? "s" : ""} selected
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
-
               <button
                 type="button"
                 onClick={handleGenerateInvoice}
-                disabled={
-                  invoiceLoading ||
-                  selectedTransactions.length === 0
-                }
+                disabled={invoiceLoading || selectedTransactions.length === 0}
                 className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {invoiceLoading
@@ -442,39 +495,31 @@ export const BankStatement = () => {
               <button
                 type="button"
                 onClick={handleGenerateFullInvoice}
-                disabled={
-                  invoiceLoading ||
-                  !statement?.transactions?.length
-                }
+                disabled={invoiceLoading || !statement?.transactions?.length}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Generate Invoice for All
               </button>
             </div>
           </div>
-          </div>
+        </div>
 
         {/* Transactions */}
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-200 p-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Transactions
-              </h2>
+              <h2 className="text-lg font-bold text-slate-900">Transactions</h2>
               <p className="mt-1 text-sm text-slate-500">
                 Select transactions to include in an invoice.
               </p>
             </div>
           </div>
           <div className="overflow-x-auto">
-            
             <table className="min-w-full">
               <thead className="bg-slate-50">
                 <tr>
                   {/* Select All */}
-                  <th className="px-4 py-3">
-                  </th>
-
+                  <th className="px-4 py-3"></th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Date
                   </th>
@@ -489,7 +534,6 @@ export const BankStatement = () => {
                     Amount
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    
                     Balance
                   </th>
                 </tr>
@@ -499,10 +543,14 @@ export const BankStatement = () => {
                   transactions.map((transaction) => (
                     <tr key={transaction._id} className="hover:bg-slate-50">
                       <td className="px-4 py-4">
-                        <input 
-                        type="checkbox"
-                        checked={selectedTransactions.includes(transaction._id)}
-                        onChange={() => handleTransactionSelection(transaction._id)} 
+                        <input
+                          type="checkbox"
+                          checked={selectedTransactions.includes(
+                            transaction._id,
+                          )}
+                          onChange={() =>
+                            handleTransactionSelection(transaction._id)
+                          }
                         />
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
@@ -527,7 +575,8 @@ export const BankStatement = () => {
                         )}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-semibold text-slate-900">
-                        ₹{Number(transaction.balance || 0).toLocaleString(
+                        ₹
+                        {Number(transaction.balance || 0).toLocaleString(
                           "en-IN",
                         )}
                       </td>
@@ -548,6 +597,152 @@ export const BankStatement = () => {
           </div>
         </div>
       </div>
+
+      {/* send Email Model */}
+      {showEmailModel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 p-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  Send Bank Statement
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Select an email template and recipient.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEmailModel(false);
+                  setEmailError("");
+                  setEmailMessage("");
+                }}
+                className="text-2xl text-slate-400 hover:text-slate-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSendEmail} className="p-6">
+              {emailMessage && (
+                <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                  {emailMessage}
+                </div>
+              )}
+              {emailError && (
+                <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {emailError}
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Email Template
+                </label>
+
+                <select
+                  value={emailForm.templateId}
+                  onChange={(e) =>
+                    setEmailForm((previous) => ({
+                      ...previous,
+                      templateId: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                >
+                  <option value="">Select Template</option>
+
+                  {templates
+                    .filter((template) => template.status === "ACTIVE")
+                    .map((template) => (
+                      <option key={template._id} value={template._id}>
+                        {template.name} ({template.type})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Recipient Email
+                </label>
+                <input
+                  type="email"
+                  value={emailForm.recepientEmail}
+                  onChange={(e) =>
+                    setEmailForm((previous) => ({
+                      ...previous,
+                      recepientEmail: e.target.value,
+                    }))
+                  }
+                  placeholder="client@example.com"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="mb-4">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            CC
+          </label>
+          <input
+            type="text"
+            value={emailForm.cc}
+            onChange={(e) =>
+              setEmailForm((previous) => ({
+                ...previous,
+                cc: e.target.value,
+              }))
+            }
+            placeholder="manager@example.com"
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500"
+          />
+          </div>
+
+           <div className="mb-6">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            BCC
+          </label>
+          <input
+            type="text"
+            value={emailForm.bcc}
+            onChange={(e) =>
+              setEmailForm((previous) => ({
+                ...previous,
+                bcc: e.target.value,
+              }))
+            }
+            placeholder="accounts@example.com"
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500"
+          />
+        </div>
+
+          <div className="flex justify-end gap-3">
+            <button 
+            type="button"
+            onClick={() => {
+              setShowEmailModel(false);
+              setEmailError("");
+              setEmailMessage("");
+            }}
+            className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+
+            <button
+            type="submit"
+            disabled={emailSending}  // to prevent the user from clicking the Send Email button multiple times while the email request is being processed.
+            className="rounded-lg ng-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {emailSending ? "Sending" : "Send Email"}
+            </button>
+            </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
