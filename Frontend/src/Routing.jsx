@@ -1,6 +1,6 @@
 import {BrowserRouter, Routes, Route} from "react-router-dom";
-import { VendorCategories } from "./components/vendorCategories";
-import { Vendors } from "./components/vendors";
+import { VendorCategories } from "./components/VendorCategories";
+import { Vendors } from "./components/Vendors";
 import { Dashboard } from "./components/Dashboard";
 import { Generator } from "./components/Generator";
 import { Company } from "./components/Companies";

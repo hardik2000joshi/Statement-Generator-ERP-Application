@@ -17,7 +17,7 @@ export const InvoicePreview = () => {
                 if(!invoiceId){
                     throw new Error("Invoice Id is missing");
                 }
-                const response = await fetch(`http://localhost:3006/api/invoice/${invoiceId}`);
+                const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/invoice/${invoiceId}`);
                 const data = await response.json();
                 if(!response.ok){
                     throw new Error(data.message || "Failed to fetch invoice");

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 export const Industries = () => {
-    const API_URL = "http://localhost:3006/api/industries";
+    const API_URL = `${import.meta.env.VITE_LOCALHOST_URL}/api/industries`;
     const [industries, setIndustries] = useState([]);
     const [formData, setFormData] = useState({
         name: "",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-const vendors_Api = "http://localhost:3006/api/vendors";
-const category_Api = "http://localhost:3006/api/category";
+const vendors_Api = `${import.meta.env.VITE_LOCALHOST_URL}/api/vendors`;
+const category_Api = `${import.meta.env.VITE_LOCALHOST_URL}/api/category`;
 export const Vendors = () => {
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");

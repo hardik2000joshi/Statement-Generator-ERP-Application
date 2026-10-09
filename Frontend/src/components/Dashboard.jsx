@@ -136,11 +136,11 @@ export const Dashboard = () => {
         invoicesResponse,
         statementsResponse,
       ] = await Promise.all([
-        fetch("http://localhost:3006/api/companies"),
-        fetch("http://localhost:3006/api/industries"),
-        fetch("http://localhost:3006/api/vendors"),
-        fetch("http://localhost:3006/api/invoice"),
-        fetch("http://localhost:3006/api/generator"),
+        fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/companies`),
+        fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/industries`),
+        fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/vendors`),
+        fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/invoice`),
+        fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/generator`),
       ]);
 
       const [

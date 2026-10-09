@@ -23,7 +23,7 @@ export const Invoices = () => {
         setError("");
 
         const response = await fetch(
-          "http://localhost:3006/api/invoice"
+          `${import.meta.env.VITE_LOCALHOST_URL}/api/invoice`
         );
 
         const data = await response.json();
@@ -58,7 +58,7 @@ export const Invoices = () => {
         setError("");
 
         const response = await fetch(
-            `http://localhost:3006/api/invoice/${invoiceId}/download`
+            `${import.meta.env.VITE_LOCALHOST_URL}/api/invoice/${invoiceId}/download`
         );
 
         const data = await response.json();

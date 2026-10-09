@@ -21,7 +21,7 @@ export const Generator = () => {
     useEffect(() => {
         const fetchCompanies = async() => {
             try {
-                const response = await fetch("http://localhost:3006/api/companies");
+                const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/companies`);
                 const data = await response.json();
                 if(!response.ok){
                     throw new Error(data.message || "Failed to fetch companies");
@@ -41,7 +41,7 @@ export const Generator = () => {
         try { 
             setHistoryLoading(true); 
             /* This endpoint should return recently generated bank statements. Example: GET /api/generator */ 
-            const response = await fetch( "http://localhost:3006/api/generator" ); 
+            const response = await fetch( `${import.meta.env.VITE_LOCALHOST_URL}/api/generator` ); 
             const data = await response.json(); 
             if (!response.ok || !data.success) 
                 { 
@@ -101,7 +101,7 @@ export const Generator = () => {
                 } 
                 setLoading(true); 
                 try { 
-                    const response = await fetch( "http://localhost:3006/api/generator", {
+                    const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/generator`, {
                          method: "POST", 
                          headers: { 
                             "Content-Type": "application/json", 
@@ -164,7 +164,7 @@ const handleDownloadStatement = async(statementId) => {
     try {
         setLoading(true);
         setError("");
-        const response = await fetch(`http://localhost:3006/api/generator/${statementId}/download`);
+        const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/generator/${statementId}/download`);
         if(!response.ok){
             throw new error("Failed to download bank statement");
         }

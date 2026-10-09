@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:3006/api/category";
+const API_URL = `${import.meta.env.VITE_LOCALHOST_URL}/api/category`;
 const colorOptions = [
   "BLUE",
   "YELLOW",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-const company_Url = "http://localhost:3006/api/companies";
-const industry_Url = "http://localhost:3006/api/industries";
+const company_Url = `${import.meta.env.VITE_LOCALHOST_URL}/api/companies`;
+const industry_Url = `${import.meta.env.VITE_LOCALHOST_URL}/api/industries`;
 
 const companiesData ={
     companyName: "",
