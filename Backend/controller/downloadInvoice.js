@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const invoiceModel = require("../models/InvoiceModel");
+const invoiceModel = require("../models/invoiceModel");
 const imagekit = require("../config/imageKit");
 const {
     generateInvoicePDF,

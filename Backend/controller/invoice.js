@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bankStatementModel = require("../models/bankStatement");
 const transactionModel = require("../models/transaction");
-const invoiceModel = require("../models/InvoiceModel");
+const invoiceModel = require("../models/invoiceModel");
 const createInvoice = async (req, res) => {
     try {
 const {bankStatementId, transactionId} = req.body;
