@@ -21,7 +21,9 @@ export const Generator = () => {
     useEffect(() => {
         const fetchCompanies = async() => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/companies`);
+                const response = await fetch(`${import.meta.env.VITE_LOCALHOST_URL}/api/companies`, {
+                    credentials: "include",
+                });
                 const data = await response.json();
                 if(!response.ok){
                     throw new Error(data.message || "Failed to fetch companies");

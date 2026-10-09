@@ -11,14 +11,30 @@ import { Settings } from "./components/Settings";
 import {Layout} from "./layout";
 import { BankStatement } from "./components/BankStatement";
 import { InvoicePreview } from "./components/InvoicePreview";
+import {SignupPage} from "./components/signupPage";
+import { LoginPage } from "./components/LoginPage";
+import { AdminLoginPage } from "./components/AdminLogin";
 export const Routing = () => {
     return(
         <BrowserRouter>
         <Routes>
-            <Route
+
+                <Route
+                path="/"
+                element={<SignupPage/>}
+                />
+                <Route 
+                path="/login"
+                element={<LoginPage />}
+                />
+                <Route
+                path="/admin/login"
+                element={<AdminLoginPage/>}
+                 />
+                <Route
             element={<Layout/>}>
             <Route 
-            path = "/"
+            path = "/dashboard"
             element={< Dashboard/>}
             />
             <Route 

@@ -12,7 +12,7 @@ const companiesData ={
     address: "",
     city: "",
     state: "",
-    country: "",
+    country: "India",
     industryType: "",
     bankDetails: {
         bankName: "",
@@ -31,16 +31,29 @@ export const Company = () => {
     const [fetchingIndustries, setFetchingIndustries] = useState(true);
     const [successMessage, setSuccessMessage] = useState("");
 
+    const getIndustryId = (industryType) => {
+        if (Array.isArray(industryType)) {
+            const firstIndustry = industryType[0];
+            return firstIndustry?._id || firstIndustry || "";
+        }
+
+        return industryType?._id || industryType || "";
+    };
+
     // fetch all companies
     const fetchCompanies = async() => {
         try {
             setFetchingCompanies(true);
             setError("");
-            const response = await fetch(company_Url);
+            const response = await fetch(company_Url, {
+              method: "GET",
+                credentials: "include",
+            });
             const data = await response.json();
             if(!response.ok){
                 throw new Error(data.message || "Failed to fetch companies");
             }
+            console.log(response);
             setCompanies(Array.isArray(data.companies) ? data.companies : []);
         }
         catch(error){
@@ -56,7 +69,9 @@ export const Company = () => {
     const fetchIndustries = async() => {
         try {
             setFetchingIndustries(true);
-            const response= await fetch(industry_Url);
+            const response= await fetch(industry_Url, {
+                credentials: "include",
+            });
             const data = await response.json();
                 if(!response.ok){
                     throw new Error(data.message || "Failed to fetch industries");
@@ -115,17 +130,21 @@ export const Company = () => {
         : company_Url;
 
       const method = editingId ? "PUT" : "POST";
+      const payload = {
+        ...formData,
+        industryType: formData.industryType ? [formData.industryType] : [],
+      };
 
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        credentials: "include",
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         throw new Error(data.message || "Failed to save company");
       }
@@ -157,10 +176,8 @@ export const Company = () => {
       address: company.address || "",
       city: company.city || "",
       state: company.state || "",
-      country: company.country || "",
-      industryType: company.industryType?._id
-        ? company.industryType._id
-        : company.industryType || "",
+      country: company.country || "India",
+      industryType: getIndustryId(company.industryType),
       bankDetails: {
         bankName: company.bankDetails?.bankName || "",
         accountNumber: company.bankDetails?.accountNumber || "",
@@ -190,6 +207,7 @@ export const Company = () => {
         `${company_Url}/${companyId}`,
         {
           method: "DELETE",
+          credentials: "include",
         }
       );
 
@@ -213,12 +231,16 @@ export const Company = () => {
   };
 
   const getIndustryName = (company) => {
-  // Case 1: Backend populated industryType
-  if (company.industryType?.[0]?.name) {
-    return company.industryType[0].name;
+  const industryType = company.industryType;
+  if (Array.isArray(industryType) && industryType[0]?.name) {
+    return industryType[0].name;
   }
-  const industryId = company.industryType?.[0]?._id;
-  // Case 2: Backend returned only the industry ID
+
+  if (!Array.isArray(industryType) && industryType?.name) {
+    return industryType.name;
+  }
+
+  const industryId = getIndustryId(industryType);
   const industry = industries.find(
     (item) => String(item._id) === String(industryId)
   );
@@ -278,9 +300,9 @@ export const Company = () => {
                                 <div key = {company._id}
                                 className="rounded-xl border border-slate-200 p-5"
                                 >
-                                    <div className="mb-3 flex items-start justify-between gap-3 text-white">
+                                    <div className="mb-3 flex items-start justify-between gap-3">
                                         <div>
-                                            <h3>
+                                            <h3 className="font-semibold text-slate-900">
                                                 {company.companyName}
                                             </h3>
 
@@ -518,6 +540,7 @@ export const Company = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter company email"
+                  required
                   className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -533,6 +556,7 @@ export const Company = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Enter phone number"
+                  required
                   className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -550,6 +574,7 @@ export const Company = () => {
                 onChange={handleChange}
                 placeholder="Enter company address"
                 rows="3"
+                required
                 className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
@@ -567,6 +592,7 @@ export const Company = () => {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder="Enter city"
+                  required
                   className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -582,6 +608,7 @@ export const Company = () => {
                   value={formData.state}
                   onChange={handleChange}
                   placeholder="Enter state"
+                  required
                   className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -600,6 +627,7 @@ export const Company = () => {
                   value={formData.country}
                   onChange={handleChange}
                   placeholder="Enter country"
+                  required
                   className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
