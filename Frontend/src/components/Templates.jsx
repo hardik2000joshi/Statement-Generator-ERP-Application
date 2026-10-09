@@ -321,12 +321,12 @@ export function Templates() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen p-6">
 
       {/* HEADER */}
 
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">
+        <h1 className="text-3xl font-bold">
           Email Templates
         </h1>
 
@@ -539,7 +539,7 @@ export function Templates() {
 
       <div className="mt-8">
 
-        <h2 className="mb-4 text-xl font-semibold text-gray-800">
+        <h2 className="mb-4 text-xl font-semibold">
           Existing Templates
         </h2>
 
@@ -605,7 +605,9 @@ export function Templates() {
                     Preview
                   </p>
 
-                  <div className="max-h-[250px] overflow-auto rounded-lg border bg-gray-50 p-5">
+                  <div className="max-h-[250px] overflow-auto rounded-lg border p-5"
+                  style={{ backgroundColor: "var(--app-background)" }}
+>
 
                     <div
                       dangerouslySetInnerHTML={{

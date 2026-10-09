@@ -228,7 +228,7 @@ export const Company = () => {
 
 
     return(
-        <div className="min-h-screen bg-slate-50 p-6">
+        <div className="min-h-screen bg-slate-50 p-6 dark:bg-slate-900">
             <div className="mx-auto max-w-7xl">
                 <div className="mb-6">
                     <h1 className="text-3xl font-bold text-slate-800">
@@ -278,7 +278,7 @@ export const Company = () => {
                                 <div key = {company._id}
                                 className="rounded-xl border border-slate-200 p-5"
                                 >
-                                    <div className="mb-3 flex items-start justify-between gap-3">
+                                    <div className="mb-3 flex items-start justify-between gap-3 text-white">
                                         <div>
                                             <h3>
                                                 {company.companyName}

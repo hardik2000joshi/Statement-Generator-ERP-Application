@@ -60,23 +60,44 @@ export const Layout = () => {
     },
   ];
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <aside className="w-64 min-h-screen bg-white border-r border-slate-200 shadow-sm flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b border-slate-200">
+    <div className="h-screen bg-slate-50 flex">
+      <aside className="w-64 h-screen bg-white border-r border-slate-200 shadow-sm flex flex-col">
+        <div className="h-16 shrink-0 flex items-center justify-center px-4 border-b border-slate-200">
           <h1 className="text-xl font-bold text-indigo-600">
             Statement Generator
                      </h1>
         </div>
-        <nav className="flex-1 p-3">
+        <nav className="flex-1 flex flex-col">
           {navigation.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.name}
                 onClick={() => navigate(item.path)}
-                className="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-600"
+                className="flex-1
+                  w-full
+                  flex
+                  flex-col
+                  items-center
+                  justify-center
+                  gap-2
+                  px-3
+                  py-3
+                  text-center
+                  text-sm
+                  font-medium
+                  text-slate-600
+                  dark:text-slate-300
+                  border-b
+                  border-slate-200
+                  dark:border-slate-700
+                  transition
+                  hover:bg-indigo-50
+                  hover:text-indigo-600
+                  dark:hover:bg-slate-800
+                  dark:hover:text-indigo-400"
               >
-                <Icon size={17} strokeWidth={1.8} />
+                <Icon size={28} strokeWidth={1.8} />
                 <span>{item.name}</span>
               </button>
             );
@@ -84,7 +105,7 @@ export const Layout = () => {
         </nav>
       </aside>
 
-      <main className="flex-1 min-w-0">
+      <main className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-950">
         <Outlet />
       </main>
       </div>

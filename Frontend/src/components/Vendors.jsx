@@ -194,7 +194,7 @@ export const Vendors = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-20">
+    <div className="min-h-screen p-20">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 p-6 mt-10">
