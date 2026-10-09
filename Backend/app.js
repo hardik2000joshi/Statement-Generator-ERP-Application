@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const app = express();
 app.use(cors({
     origin: "http://localhost:5173",
@@ -8,6 +9,9 @@ app.use(cors({
     credentials: true
 }))
 app.use(express.json());
+app.use(cookieParser());
+
+const authRouter = require("./routes/authRoutes");
 const companyRouter = require("./routes/companyRoutes");
 const industryRouter = require("./routes/industryRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
@@ -17,6 +21,7 @@ const invoiceRouter = require("./routes/invoiceRoutes");
 const emailRouter = require("./routes/emailRoutes");
 const templateRouter = require("./routes/templateRoutes");
 
+app.use("/api/auth", authRouter);
 app.use("/api/companies", companyRouter);
 app.use("/api/industries", industryRouter);
 app.use("/api/category", categoryRouter);
