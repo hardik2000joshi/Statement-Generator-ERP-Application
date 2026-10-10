@@ -3,6 +3,6 @@
  const connectDB = require("./config/db");
  connectDB()
  const PORT = process.env.PORT || 3006; 
- app.listen(3006, () => {
+ app.listen(PORT, () => {
     console.log("Backend server runs on port", PORT);
  })

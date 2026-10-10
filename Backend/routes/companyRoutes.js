@@ -1,9 +1,12 @@
+
 const express = require("express");
-const {authenticateUser, authAdminMiddleware} = require("../middleware/authMiddleware");
+const {authenticateUser, authorizeRoles} = require("../middleware/authMiddleware");
+
 const {createCompany, getCompany, getAllCompanies, updateCompany, deleteCompany} = require("../controller/companies");
 const router = express.Router();
+router.use(authenticateUser);
+router.use(authorizeRoles);
 
-router.use(authenticateUser, authAdminMiddleware);
 // Create Company
 router.post("/", createCompany);
 router.get("/:id", getCompany);

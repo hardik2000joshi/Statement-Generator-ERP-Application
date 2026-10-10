@@ -2,7 +2,18 @@
  async function createCompany(req, res){
 try {
     const {companyName, registrationNumber, gstNumber, panNumber, email, phone, address, city, state, country, industryType, bankDetails} = req.body;
-    if(!companyName || !registrationNumber || !email || !phone || !address || !city || !state || !country){
+    if(
+      !companyName ||
+      !registrationNumber ||
+      !email ||
+      !phone ||
+      !address ||
+      !city ||
+      !state ||
+      !country ||
+      !industryType ||
+      (Array.isArray(industryType) && industryType.length === 0)
+    ){
         return res.status(400).json({
             success: false,
             message: "Company fields are missing",

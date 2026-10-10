@@ -116,8 +116,8 @@ const login = async (req, res) => {
 
     res.cookie("JWT_Token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -126,7 +126,7 @@ const login = async (req, res) => {
       message: "Login successful",
       user: {
         id: user._id,
-        name: user.firstName,
+        firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         role: user.role,
