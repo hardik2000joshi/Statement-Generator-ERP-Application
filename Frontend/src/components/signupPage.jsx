@@ -128,18 +128,17 @@ export function SignupPage() {
               <div className="relative">
                 <UserRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
-                  id="name"
-                  name="name"
+                type="text"
+                name="firstName"
                   value={form.firstName}
                   onChange={handleChange}
                   placeholder="Enter your full name"
-                  autoComplete="name"
+                //   autoComplete="name"
                   maxLength={100}
                   required
                   className={inputClass}
                 />
-              </div>
-
+                </div>
               <label htmlFor="name" className="mb-2 block text-sm font-medium text-slate-700">
                 Last Name
               </label>
@@ -147,13 +146,12 @@ export function SignupPage() {
                 <UserRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                   id="name"
-                  name="name"
+                  name="lastName"
                   value={form.lastName}
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   autoComplete="name"
                   maxLength={100}
-                  required
                   className={inputClass}
                 />
               </div>
